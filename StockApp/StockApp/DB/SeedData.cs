@@ -183,5 +183,25 @@ namespace StockApp.DB
 
             context.SaveChanges();
         }
+
+        public static void AddCrawlTasks()
+        {
+            StockDbContext context = new StockDbContext();
+            List<int> stockIDList = context.Stock.Select(x => x.ID).ToList();
+
+            foreach(var stockID in stockIDList)
+            {
+                CrawlTask task = new CrawlTask()
+                {
+                    Type = CrawlTaskType.CrawlDayTradeRecord,
+                    State = CrawlTaskState.Created,
+                    StockID = stockID
+                };
+
+                context.CrawlTask.Add(task);
+            }
+
+            context.SaveChanges();
+        }
     }
 }

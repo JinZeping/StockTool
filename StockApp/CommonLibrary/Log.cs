@@ -10,6 +10,8 @@ namespace CommonLibrary
 {
     public class Log
     {
+        private object writeLock = new object();
+
         public bool Enable { get; set; } = true;
         public LogLevel EnableLevel { get; set; } = LogLevel.DEBUG;
         public string FilePath { get; private set; }
@@ -80,9 +82,12 @@ namespace CommonLibrary
             content = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}, [{Thread.CurrentThread.ManagedThreadId:D4}], [{level}], "
                 + $"{content.Replace(',', '，')}";
 
-            using (StreamWriter writer = new StreamWriter(FilePath, true))
+            lock (writeLock)
             {
-                writer.WriteLine(content);
+                using (StreamWriter writer = new StreamWriter(FilePath, true))
+                {
+                    writer.WriteLine(content);
+                }
             }
         }
     }

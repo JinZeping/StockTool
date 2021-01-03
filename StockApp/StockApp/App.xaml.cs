@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
@@ -6,6 +6,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using StockApp.DB;
+using StockApp.UI;
+using StockApp.Crawler;
 
 namespace StockApp
 {
@@ -16,11 +18,16 @@ namespace StockApp
     {
         private void Application_Startup(object sender, StartupEventArgs e)
         {
+
+#if DEBUG
+            Log.Info("程序启动");
+            Process();
+            Log.Info("程序退出");
+#else
             try
             {
                 Log.Info("程序启动");
-
-                new MainWindow().Show();
+                Process();
             }
             catch (Exception ex)
             {
@@ -31,6 +38,12 @@ namespace StockApp
             {
                 Log.Info("程序退出");
             }
+#endif
+        }
+
+        private void Process()
+        {
+            new MainWindow().Show();
         }
     }
 }

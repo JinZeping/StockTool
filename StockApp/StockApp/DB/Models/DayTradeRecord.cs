@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,25 +13,25 @@ namespace StockApp.DB.Models
         public int ID { get; set; }
         [Required, Column(TypeName = "date")]
         public DateTime Date { get; set; }
-        [Required, Column(TypeName = "decimal(10,2)")]
+        [Required, Column(TypeName = "decimal(18,2)")]
         public decimal Begin { get; set; }
-        [Required, Column(TypeName = "decimal(10,2)")]
+        [Required, Column(TypeName = "decimal(18,2)")]
         public decimal End { get; set; }
-        [Required, Column(TypeName = "decimal(10,2)")]
+        [Required, Column(TypeName = "decimal(18,2)")]
         public decimal Max { get; set; }
-        [Required, Column(TypeName = "decimal(10,2)")]
+        [Required, Column(TypeName = "decimal(18,2)")]
         public decimal Min { get; set; }
-        [Required, Column(TypeName = "decimal(10,2)")]
+        [Required, Column(TypeName = "decimal(18,2)")]
         public decimal Change{ get; set; }
-        [Required, Column(TypeName = "decimal(10,2)")]
+        [Required, Column(TypeName = "decimal(18,2)")]
         public decimal ChangeRate { get; set; }
-        [Required]
-        public int TradeHand { get; set; }
-        [Required]
-        public int TradeAmount { get; set; }
-        [Required, Column(TypeName = "decimal(10,2)")]
+        [Required, Column(TypeName = "decimal(18,2)")]
+        public decimal TradeHand { get; set; }
+        [Required, Column(TypeName = "decimal(18,2)")]
+        public decimal TradeAmount { get; set; }
+        [Required, Column(TypeName = "decimal(18,2)")]
         public decimal Amplitude { get; set; }
-        [Required, Column(TypeName = "decimal(10,2)")]
+        [Required, Column(TypeName = "decimal(18,2)")]
         public decimal TurnoverRate { get; set; }
 
         [Required]

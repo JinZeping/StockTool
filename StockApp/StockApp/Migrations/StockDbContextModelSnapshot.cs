@@ -19,6 +19,29 @@ namespace StockApp.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("ProductVersion", "5.0.1");
 
+            modelBuilder.Entity("StockApp.DB.Models.CrawlTask", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .UseIdentityColumn();
+
+                    b.Property<int>("State")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StockID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("StockID");
+
+                    b.ToTable("CrawlTask");
+                });
+
             modelBuilder.Entity("StockApp.DB.Models.DayTradeRecord", b =>
                 {
                     b.Property<int>("ID")
@@ -27,40 +50,40 @@ namespace StockApp.Migrations
                         .UseIdentityColumn();
 
                     b.Property<decimal>("Amplitude")
-                        .HasColumnType("decimal(10,2)");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("Begin")
-                        .HasColumnType("decimal(10,2)");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("Change")
-                        .HasColumnType("decimal(10,2)");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("ChangeRate")
-                        .HasColumnType("decimal(10,2)");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime>("Date")
                         .HasColumnType("date");
 
                     b.Property<decimal>("End")
-                        .HasColumnType("decimal(10,2)");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("Max")
-                        .HasColumnType("decimal(10,2)");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("Min")
-                        .HasColumnType("decimal(10,2)");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("StockID")
                         .HasColumnType("int");
 
-                    b.Property<int>("TradeAmount")
-                        .HasColumnType("int");
+                    b.Property<decimal>("TradeAmount")
+                        .HasColumnType("decimal(18,2)");
 
-                    b.Property<int>("TradeHand")
-                        .HasColumnType("int");
+                    b.Property<decimal>("TradeHand")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("TurnoverRate")
-                        .HasColumnType("decimal(10,2)");
+                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("ID");
 
@@ -119,6 +142,17 @@ namespace StockApp.Migrations
                     b.HasIndex("ExchangeID");
 
                     b.ToTable("Stock");
+                });
+
+            modelBuilder.Entity("StockApp.DB.Models.CrawlTask", b =>
+                {
+                    b.HasOne("StockApp.DB.Models.Stock", "Stock")
+                        .WithMany()
+                        .HasForeignKey("StockID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Stock");
                 });
 
             modelBuilder.Entity("StockApp.DB.Models.DayTradeRecord", b =>
