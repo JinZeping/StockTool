@@ -8,6 +8,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace StockApp.DB.Models
 {
+    /// <summary>
+    /// 证券交易所
+    /// </summary>
     public class Exchange
     {
         public int ID { get; set; }

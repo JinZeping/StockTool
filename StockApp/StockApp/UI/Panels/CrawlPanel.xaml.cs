@@ -38,7 +38,11 @@ namespace StockApp.UI.Panels
 
         private void ViewModel_AddMessageEventHandler(string msg)
         {
-            Dispatcher.Invoke(() => MessageList.Add(msg));
+            Dispatcher.Invoke(() =>
+            {
+                MessageList.Add(msg);
+                MessageListView.ScrollIntoView(msg);
+            });
         }
     }
 }

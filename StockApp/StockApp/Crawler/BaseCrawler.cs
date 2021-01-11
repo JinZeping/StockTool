@@ -52,7 +52,14 @@ namespace StockApp.Crawler
             }
         }
 
-        public virtual string[][] Get(string baseXPath, params string[] args)
+        public virtual HtmlNode GetNode(string xpath)
+        {
+            HtmlDocument htmlDoc = new HtmlDocument();
+            htmlDoc.LoadHtml(Driver.PageSource);
+            return htmlDoc.DocumentNode.SelectSingleNode(xpath);
+        }
+
+        public virtual string[][] GetInnerTexts(string baseXPath, params string[] args)
         {
             HtmlDocument htmlDoc = new HtmlDocument();
             htmlDoc.LoadHtml(Driver.PageSource);
@@ -72,7 +79,7 @@ namespace StockApp.Crawler
 
                 for(int j = 0; j < args.Length; j++)
                 {
-                    values[j] = node.SelectSingleNode(args[j]).InnerText;
+                    values[j] = node.SelectSingleNode(args[j])?.InnerText;
                 }
 
                 result[i] = values;

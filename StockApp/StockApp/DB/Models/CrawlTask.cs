@@ -8,6 +8,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace StockApp.DB.Models
 {
+    /// <summary>
+    /// 爬取任务
+    /// </summary>
     public class CrawlTask
     {
         public int ID { get; set; }
@@ -23,7 +26,8 @@ namespace StockApp.DB.Models
 
     public enum CrawlTaskType : int
     {
-        CrawlDayTradeRecord = 0
+        CrawlDayTradeRecord = 0,
+        CrawlFinancialSummary = 1
     }
 
     public enum CrawlTaskState : int

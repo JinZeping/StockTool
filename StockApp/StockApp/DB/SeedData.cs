@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using StockApp.DB.Models;
 using System.IO;
+using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
 
 namespace StockApp.DB
 {
@@ -188,7 +190,7 @@ namespace StockApp.DB
         {
             StockDbContext context = new StockDbContext();
             List<int> stockIDList = context.Stock.Select(x => x.ID).ToList();
-
+            
             foreach(var stockID in stockIDList)
             {
                 CrawlTask task = new CrawlTask()
@@ -202,6 +204,82 @@ namespace StockApp.DB
             }
 
             context.SaveChanges();
+        }
+
+        public static void EditDayTradeRecord()
+        {
+            StockDbContext context = new StockDbContext();
+            Debug.WriteLine($"正在查询");
+
+            var records = context.DayTradeRecord.Where(x => x.Begin == -99999999.99m
+                || x.End == -99999999.99m
+                || x.Max == -99999999.99m
+                || x.Min == -99999999.99m
+                || x.Change == -99999999.99m
+                || x.ChangeRate == -99999999.99m
+                || x.TradeHand == -99999999.99m
+                || x.TradeAmount == -99999999.99m
+                || x.Amplitude == -99999999.99m
+                || x.TurnoverRate == -99999999.99m)
+                .ToList();
+
+            Debug.WriteLine($"查询到{records.Count()}条数据");
+            
+            foreach(var record in records)
+            {
+                if (record.Begin == -99999999.99m)
+                {
+                    record.Begin = null;
+                }
+
+                if (record.End == -99999999.99m)
+                {
+                    record.End = null;
+                }
+
+                if (record.Max == -99999999.99m)
+                {
+                    record.Max = null;
+                }
+
+                if (record.Min == -99999999.99m)
+                {
+                    record.Min = null;
+                }
+
+                if (record.Change == -99999999.99m)
+                {
+                    record.Change = null;
+                }
+
+                if (record.ChangeRate == -99999999.99m)
+                {
+                    record.ChangeRate = null;
+                }
+
+                if (record.TradeHand == -99999999.99m)
+                {
+                    record.TradeHand = null;
+                }
+
+                if (record.TradeAmount == -99999999.99m)
+                {
+                    record.TradeAmount = null;
+                }
+
+                if (record.Amplitude == -99999999.99m)
+                {
+                    record.Amplitude = null;
+                }
+
+                if (record.TurnoverRate == -99999999.99m)
+                {
+                    record.TurnoverRate = null;
+                }
+            }
+
+            context.SaveChanges();
+            System.Diagnostics.Debug.WriteLine("Completed");
         }
     }
 }

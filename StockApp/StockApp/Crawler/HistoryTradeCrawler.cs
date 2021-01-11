@@ -27,7 +27,7 @@ namespace StockApp.Crawler
                 args[i] = $"td[{i + 1}]";
             }
 
-            var data = Get("/html/body/div[2]/div[4]/table/tbody/tr", args);
+            var data = GetInnerTexts("/html/body/div[2]/div[4]/table/tbody/tr", args);
 
             if (data == null)
             {
@@ -36,7 +36,7 @@ namespace StockApp.Crawler
 
             return data.Select(values =>
             {
-                values = values.Select(x => x.Replace(",", "")).ToArray();
+                values = values.Select(x => x.Replace(",", "").Replace("--","-99999999.99")).ToArray();
                 return new DayTradeRecord()
                 {
                     StockID = Stock.ID,

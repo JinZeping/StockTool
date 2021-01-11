@@ -12,8 +12,10 @@ namespace StockApp.DB
     {
         public DbSet<Exchange> Exchange { get; set; }
         public DbSet<Stock> Stock { get; set; }
-        public DbSet<DayTradeRecord> DayTradeRecord { get; set; }
         public DbSet<CrawlTask> CrawlTask { get; set; }
+        public DbSet<DayTradeRecord> DayTradeRecord { get; set; }
+        public DbSet<SeasonFinancialSummary> SeasonFinancialSummary { get; set; }
+        public DbSet<YearFinancialSummary> YearFinancialSummary { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

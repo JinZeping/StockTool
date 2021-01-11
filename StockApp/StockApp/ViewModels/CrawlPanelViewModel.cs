@@ -14,7 +14,14 @@ namespace StockApp.ViewModels
 {
     public class CrawlPanelViewModel
     {
+        private StockDbContext context = new StockDbContext();
+        private List<CrawlTask> PendingTaskList = new List<CrawlTask>();
+        private object getTaskLock = new object();
+        private object saveLock = new object();
+
         public bool IsWorking { get; private set; }
+        public int ThreadCount { get; set; } = 7;
+        public CrawlTaskType CrawlTaskType { get; set; } = CrawlTaskType.CrawlDayTradeRecord;
 
         public Command StartCommand { get; private set; }
         public Command StopCommand { get; private set; }
@@ -28,36 +35,75 @@ namespace StockApp.ViewModels
             StopCommand = new Command(Stop, CanStop);
         }
 
-        public void Start(object arg)
+        private async void Start(object arg)
         {
             IsWorking = true;
 
-            Task.Run(Crawl);
+            ClearMessage();
+
+            switch (CrawlTaskType)
+            {
+                case CrawlTaskType.CrawlDayTradeRecord:
+                    CrawlDayTradeRecord();
+                    break;
+                case CrawlTaskType.CrawlFinancialSummary:
+                    await CrawlFinancialSummary();
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
         }
 
-        public void Stop(object arg)
+        private void Stop(object arg)
         {
             IsWorking = false;
             AddMessage("正在停止");
         }
 
-        public void Crawl()
-        {
-            ClearMessage();
-            AddMessage("开始爬取");
+        private bool CanStart(object arg) => !IsWorking;
 
-            StockDbContext context = new StockDbContext();
-            var taskList = context.CrawlTask.Where(x => x.State == CrawlTaskState.Created || x.State == CrawlTaskState.Doing)
+        private bool CanStop(object arg) => IsWorking;
+
+        private void CrawlDayTradeRecord()
+        {
+            PendingTaskList = context.CrawlTask.Where(x => x.State != CrawlTaskState.Done && x.Type == CrawlTaskType.CrawlDayTradeRecord)
                 .Include(x => x.Stock).ToList();
-            AddMessage($"当前有{taskList.Count}个任务待完成");
+
+            AddMessage($"当前有{PendingTaskList.Count}个任务待完成");
+
+            for (int i = 0; i < ThreadCount; i++)
+            {
+                Task.Run(CrawlDayTradeRecordThread);
+            }
+        }
+
+        private void CrawlDayTradeRecordThread()
+        {
+            AddMessage("开始爬取");
 
             HistoryTradeCrawler crawler = new HistoryTradeCrawler();
 
-            foreach (var crawlTask in taskList)
+            while (true)
             {
+                CrawlTask crawlTask;
+
+                lock (getTaskLock)
+                {
+                    crawlTask = PendingTaskList.FirstOrDefault(x => x.State == CrawlTaskState.Created);
+
+                    if (crawlTask == null)
+                    {
+                        AddMessage("全部爬取完成");
+                        break;
+                    }
+
+                    crawlTask.State = CrawlTaskState.Doing;
+                }
+
                 int year = crawlTask.Stock.ListingDate.Year;
                 int season = (crawlTask.Stock.ListingDate.Month - 1) / 3 + 1;
                 bool completed = false;
+                List<DayTradeRecord> recordList = new List<DayTradeRecord>();
 
                 while (IsWorking)
                 {
@@ -69,12 +115,12 @@ namespace StockApp.ViewModels
                     }
 
                     crawler.Open(crawlTask.Stock, year, season);
-                    Task.Delay(1000).Wait();
+                    Task.Delay(100).Wait();
                     var records = crawler.Get();
 
                     if (records != null && records.Length > 0)
                     {
-                        context.DayTradeRecord.AddRange(records);
+                        recordList.AddRange(records);
                     }
 
                     if (season == 4)
@@ -90,8 +136,13 @@ namespace StockApp.ViewModels
 
                 if (completed)
                 {
-                    crawlTask.State = CrawlTaskState.Done;
-                    context.SaveChanges();
+                    lock (saveLock)
+                    {
+                        context.DayTradeRecord.AddRange(recordList);
+                        crawlTask.State = CrawlTaskState.Done;
+                        context.SaveChanges();
+                    }
+
                     AddMessage($"{crawlTask.Stock.Number} {crawlTask.Stock.Name} 爬取完成");
                 }
 
@@ -105,10 +156,103 @@ namespace StockApp.ViewModels
             AddMessage("爬取已停止");
         }
 
-        public bool CanStart(object arg) => !IsWorking;
-        public bool CanStop(object arg) => IsWorking;
+        private async Task CrawlFinancialSummary()
+        {
+            var stocks = await context.Stock.AsNoTracking().ToListAsync();
+            int newCount = 0;
+
+            foreach(var stock in stocks)
+            {
+                if (!context.CrawlTask.Any(x => x.StockID == stock.ID && x.Type == CrawlTaskType.CrawlFinancialSummary))
+                {
+                    CrawlTask task = new CrawlTask()
+                    {
+                        StockID = stock.ID,
+                        State = CrawlTaskState.Created,
+                        Type = CrawlTaskType.CrawlFinancialSummary
+                    };
+                    context.CrawlTask.Add(task);
+                    newCount++;
+                }
+            }
+
+            if (newCount > 0)
+            {
+                await context.SaveChangesAsync();
+                AddMessage($"新建{newCount}条爬取记录");
+            }
+
+            PendingTaskList = context.CrawlTask.Where(x => x.State != CrawlTaskState.Done && x.Type == CrawlTaskType.CrawlFinancialSummary)
+                .Include(x => x.Stock).ToList();
+
+            AddMessage($"当前有{PendingTaskList.Count}个任务待完成");
+
+            for (int i = 0; i < ThreadCount; i++)
+            {
+                Task.Run(CrawlFinancialSummaryThread);
+            }
+        }
+
+        private void CrawlFinancialSummaryThread()
+        {
+            AddMessage("开始爬取");
+
+            FinancialSummaryCrawler crawler = new FinancialSummaryCrawler();
+
+            while (true)
+            {
+                CrawlTask crawlTask;
+
+                lock (getTaskLock)
+                {
+                    crawlTask = PendingTaskList.FirstOrDefault(x => x.State == CrawlTaskState.Created);
+
+                    if (crawlTask == null)
+                    {
+                        AddMessage("全部爬取完成");
+                        break;
+                    }
+
+                    crawlTask.State = CrawlTaskState.Doing;
+                }
+
+                crawler.Open(crawlTask.Stock, TimeRange.Season);
+                Task.Delay(100).Wait();
+                SeasonFinancialSummary[] summarys1 = crawler.Get<SeasonFinancialSummary>();
+                crawler.Open(crawlTask.Stock, TimeRange.Year);
+                Task.Delay(100).Wait();
+                YearFinancialSummary[] summary2 = crawler.Get<YearFinancialSummary>();
+
+                lock(saveLock)
+                {
+                    if (summarys1 != null)
+                    {
+                        context.SeasonFinancialSummary.AddRange(summarys1);
+                    }
+
+                    if (summary2 != null)
+                    {
+                        context.YearFinancialSummary.AddRange(summary2);
+                    }
+
+                    crawlTask.State = CrawlTaskState.Done;
+                    context.SaveChanges();
+                }
+
+                AddMessage($"{crawlTask.Stock.Number} {crawlTask.Stock.Name} 爬取完成");
+
+                if (!IsWorking)
+                {
+                    break;
+                }
+            }
+
+            crawler.Dispose();
+            AddMessage("爬取已停止");
+        }
 
         private void ClearMessage() => ClearMessageEventHandler?.Invoke();
+
         private void AddMessage(string msg) => AddMessageEventHandler?.Invoke(msg);
     }
 }
