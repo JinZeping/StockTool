@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -42,12 +42,12 @@ namespace StockApp.DB
 
             Exchange shanghai = context.Exchange.First(x => x.NameAbbr == "上证");
             Exchange shenzhen = context.Exchange.First(x => x.NameAbbr == "深证");
-            
+
             using (StreamReader reader = new StreamReader(@"E:\GitHub\StockTool\Document\沪主板A股.csv", encoding))
             {
                 string line = reader.ReadLine();
 
-                while(true)
+                while (true)
                 {
                     line = reader.ReadLine();
 
@@ -190,8 +190,8 @@ namespace StockApp.DB
         {
             StockDbContext context = new StockDbContext();
             List<int> stockIDList = context.Stock.Select(x => x.ID).ToList();
-            
-            foreach(var stockID in stockIDList)
+
+            foreach (var stockID in stockIDList)
             {
                 CrawlTask task = new CrawlTask()
                 {
@@ -224,8 +224,8 @@ namespace StockApp.DB
                 .ToList();
 
             Debug.WriteLine($"查询到{records.Count()}条数据");
-            
-            foreach(var record in records)
+
+            foreach (var record in records)
             {
                 if (record.Begin == -99999999.99m)
                 {
@@ -280,6 +280,36 @@ namespace StockApp.DB
 
             context.SaveChanges();
             System.Diagnostics.Debug.WriteLine("Completed");
+        }
+
+        public static void AddMonthSeasonYearTradeRecord()
+        {
+            Log.Debug("获取股票列表");
+
+            List<CrawlTask> taskList;
+
+            using (StockDbContext context = new StockDbContext())
+            {
+                var stockList = context.Stock.AsNoTracking().ToList();
+
+                foreach (var stock in stockList)
+                {
+                    if (!context.CrawlTask.Any(x => x.StockID == stock.ID && x.Type == CrawlTaskType.MonthSeasonYearTradeRecord))
+                    {
+                        CrawlTask t = new CrawlTask()
+                        {
+                            StockID = stock.ID,
+                            Type = CrawlTaskType.MonthSeasonYearTradeRecord,
+                            State = CrawlTaskState.Created
+                        };
+                        context.CrawlTask.Add(t);
+                    }
+                }
+
+                context.SaveChanges();
+                taskList = context.CrawlTask.Where(x => x.Type == CrawlTaskType.MonthSeasonYearTradeRecord && x.State != CrawlTaskState.Done)
+                    .AsNoTracking().ToList();
+            }
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,6 +14,9 @@ namespace StockApp.DB
         public DbSet<Stock> Stock { get; set; }
         public DbSet<CrawlTask> CrawlTask { get; set; }
         public DbSet<DayTradeRecord> DayTradeRecord { get; set; }
+        public DbSet<MonthTradeRecord> MonthTradeRecord { get; set; }
+        public DbSet<SeasonTradeRecord> SeasonTradeRecord { get; set; }
+        public DbSet<YearTradeRecord> YearTradeRecord { get; set; }
         public DbSet<SeasonFinancialSummary> SeasonFinancialSummary { get; set; }
         public DbSet<YearFinancialSummary> YearFinancialSummary { get; set; }
         public DbSet<SeasonFinancialBrief> SeasonFinancialBrief { get; set; }

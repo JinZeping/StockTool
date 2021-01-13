@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -28,7 +28,8 @@ namespace StockApp.DB.Models
     {
         CrawlDayTradeRecord = 0,
         CrawlFinancialSummary = 1,
-        CrawlFinancialBrief = 2
+        CrawlFinancialBrief = 2,
+        MonthSeasonYearTradeRecord = 3
     }
 
     public enum CrawlTaskState : int
