@@ -32,6 +32,7 @@
 					  SelectedItem="{Binding CrawlTaskType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
 				<model:CrawlTaskType>CrawlDayTradeRecord</model:CrawlTaskType>
 				<model:CrawlTaskType>CrawlFinancialSummary</model:CrawlTaskType>
+				<model:CrawlTaskType>CrawlFinancialBrief</model:CrawlTaskType>
 			</ComboBox>
 			<TextBlock Margin="20,0,10,0"
 					   Text="线程数量" />

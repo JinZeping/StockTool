@@ -27,7 +27,8 @@ namespace StockApp.DB.Models
     public enum CrawlTaskType : int
     {
         CrawlDayTradeRecord = 0,
-        CrawlFinancialSummary = 1
+        CrawlFinancialSummary = 1,
+        CrawlFinancialBrief = 2
     }
 
     public enum CrawlTaskState : int

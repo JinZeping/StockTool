@@ -16,6 +16,8 @@ namespace StockApp.DB
         public DbSet<DayTradeRecord> DayTradeRecord { get; set; }
         public DbSet<SeasonFinancialSummary> SeasonFinancialSummary { get; set; }
         public DbSet<YearFinancialSummary> YearFinancialSummary { get; set; }
+        public DbSet<SeasonFinancialBrief> SeasonFinancialBrief { get; set; }
+        public DbSet<YearFinancialBrief> YearFinancialBrief { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

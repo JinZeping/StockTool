@@ -49,6 +49,9 @@ namespace StockApp.ViewModels
                 case CrawlTaskType.CrawlFinancialSummary:
                     await CrawlFinancialSummary();
                     break;
+                case CrawlTaskType.CrawlFinancialBrief:
+                    await CrawlFinancialBrief();
+                    break;
                 default:
                     throw new NotImplementedException();
             }
@@ -179,7 +182,7 @@ namespace StockApp.ViewModels
             if (newCount > 0)
             {
                 await context.SaveChangesAsync();
-                AddMessage($"新建{newCount}条爬取记录");
+                AddMessage($"新建{newCount}条爬取任务");
             }
 
             PendingTaskList = context.CrawlTask.Where(x => x.State != CrawlTaskState.Done && x.Type == CrawlTaskType.CrawlFinancialSummary)
@@ -233,6 +236,101 @@ namespace StockApp.ViewModels
                     if (summary2 != null)
                     {
                         context.YearFinancialSummary.AddRange(summary2);
+                    }
+
+                    crawlTask.State = CrawlTaskState.Done;
+                    context.SaveChanges();
+                }
+
+                AddMessage($"{crawlTask.Stock.Number} {crawlTask.Stock.Name} 爬取完成");
+
+                if (!IsWorking)
+                {
+                    break;
+                }
+            }
+
+            crawler.Dispose();
+            AddMessage("爬取已停止");
+        }
+
+        private async Task CrawlFinancialBrief()
+        {
+            var stocks = await context.Stock.AsNoTracking().ToListAsync();
+            int newCount = 0;
+
+            foreach (var stock in stocks)
+            {
+                if (!context.CrawlTask.Any(x => x.StockID == stock.ID && x.Type == CrawlTaskType.CrawlFinancialBrief))
+                {
+                    CrawlTask task = new CrawlTask()
+                    {
+                        StockID = stock.ID,
+                        State = CrawlTaskState.Created,
+                        Type = CrawlTaskType.CrawlFinancialBrief
+                    };
+                    context.CrawlTask.Add(task);
+                    newCount++;
+                }
+            }
+
+            if (newCount > 0)
+            {
+                await context.SaveChangesAsync();
+                AddMessage($"新建{newCount}条爬取任务");
+            }
+
+            PendingTaskList = context.CrawlTask.Where(x => x.State != CrawlTaskState.Done && x.Type == CrawlTaskType.CrawlFinancialBrief)
+                .Include(x => x.Stock).ToList();
+
+            AddMessage($"当前有{PendingTaskList.Count}个任务待完成");
+
+            for (int i = 0; i < ThreadCount; i++)
+            {
+                Task.Run(CrawlFinancialBriefThread);
+            }
+        }
+
+        private void CrawlFinancialBriefThread()
+        {
+            AddMessage("开始爬取");
+
+            FinancialBriefCrawler crawler = new FinancialBriefCrawler();
+
+            while (true)
+            {
+                CrawlTask crawlTask;
+
+                lock (getTaskLock)
+                {
+                    crawlTask = PendingTaskList.FirstOrDefault(x => x.State == CrawlTaskState.Created);
+
+                    if (crawlTask == null)
+                    {
+                        AddMessage("全部爬取完成");
+                        break;
+                    }
+
+                    crawlTask.State = CrawlTaskState.Doing;
+                }
+
+                crawler.Open(crawlTask.Stock, TimeRange.Season);
+                Task.Delay(100).Wait();
+                SeasonFinancialBrief[] summarys1 = crawler.Get<SeasonFinancialBrief>();
+                crawler.Open(crawlTask.Stock, TimeRange.Year);
+                Task.Delay(100).Wait();
+                YearFinancialBrief[] summary2 = crawler.Get<YearFinancialBrief>();
+
+                lock (saveLock)
+                {
+                    if (summarys1 != null)
+                    {
+                        context.SeasonFinancialBrief.AddRange(summarys1);
+                    }
+
+                    if (summary2 != null)
+                    {
+                        context.YearFinancialBrief.AddRange(summary2);
                     }
 
                     crawlTask.State = CrawlTaskState.Done;
