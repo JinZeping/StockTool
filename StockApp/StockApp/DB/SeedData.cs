@@ -308,8 +308,196 @@ namespace StockApp.DB
 
                 context.SaveChanges();
                 taskList = context.CrawlTask.Where(x => x.Type == CrawlTaskType.MonthSeasonYearTradeRecord && x.State != CrawlTaskState.Done)
-                    .AsNoTracking().ToList();
+                    .Include(x => x.Stock).AsNoTracking().ToList();
             }
+
+            for (int i = 0; i < taskList.Count; i++)
+            {
+                var task = taskList[i];
+                Log.Debug($"{task.Stock.Number}  {task.Stock.Name}  {i}/{taskList.Count}");
+
+                using (StockDbContext context = new StockDbContext())
+                {
+
+                    List<DayTradeRecord> dayList = context.DayTradeRecord.Where(x => x.StockID == task.StockID).AsNoTracking().ToList();
+                    List<MonthTradeRecord> monthList = new List<MonthTradeRecord>();
+                    List<SeasonTradeRecord> seasonList = new List<SeasonTradeRecord>();
+                    List<YearTradeRecord> yearList = new List<YearTradeRecord>();
+
+                    if (dayList.Count == 0)
+                    {
+                        continue;
+                    }
+
+                    DateTime start = dayList.Min(x => x.Date);
+                    DateTime stop = dayList.Max(x => x.Date);
+
+                    start = new DateTime(start.Year, start.Month, 1);
+                    stop = new DateTime(stop.Year, stop.Month, 1);
+
+                    DateTime monthBegin = start;
+
+                    while (true)
+                    {
+                        if (monthBegin > stop)
+                        {
+                            break;
+                        }
+
+                        DateTime monthEnd = monthBegin.AddMonths(1).AddDays(-1);
+                        List<DayTradeRecord> dayList2 = dayList.Where(x => x.Date >= monthBegin && x.Date <= monthEnd)
+                            .OrderBy(x => x.Date).ToList();
+
+                        if (dayList2.Count != 0)
+                        {
+                            MonthTradeRecord record = new MonthTradeRecord()
+                            {
+                                StockID = task.StockID,
+                                Date = monthBegin,
+                                Begin = dayList2.First().Begin,
+                                End = dayList2.Last().End,
+                                Min = dayList2.Min(x => x.Min),
+                                Max = dayList2.Max(x => x.Max),
+                                TradeHand = dayList2.Sum(x => x.TradeHand),
+                                TradeAmount = dayList2.Sum(x => x.TradeAmount),
+                                TurnoverRate = dayList2.Sum(x => x.TurnoverRate)
+                            };
+
+                            if (monthList.Count == 0)
+                            {
+                                record.Change = record.End - record.Begin;
+                                record.ChangeRate = record.Change / record.Begin * 100;
+                                record.Amplitude = (record.Max - record.Min) / record.Begin * 100;
+                            }
+                            else
+                            {
+                                var last = monthList.Last();
+                                record.Change = record.End - last.End;
+                                record.ChangeRate = record.Change / last.End * 100;
+                                record.Amplitude = (record.Max - record.Min) / last.End * 100;
+                            }
+
+                            monthList.Add(record);
+                        }
+
+                        monthBegin = monthBegin.AddMonths(1);
+                    }
+
+
+                    start = new DateTime(start.Year, (start.Month - 1) / 3 * 3 + 1, 1);
+                    stop = new DateTime(stop.Year, (stop.Month - 1) / 3 * 3 + 1, 1);
+
+                    monthBegin = start;
+
+                    while (true)
+                    {
+                        if (monthBegin > stop)
+                        {
+                            break;
+                        }
+
+                        DateTime monthEnd = monthBegin.AddMonths(3);
+                        List<MonthTradeRecord> monthList2 = monthList.Where(x => x.Date >= monthBegin && x.Date < monthEnd)
+                            .OrderBy(x => x.Date).ToList();
+
+                        if (monthList2.Count != 0)
+                        {
+                            SeasonTradeRecord record = new SeasonTradeRecord()
+                            {
+                                StockID = task.StockID,
+                                Date = monthBegin,
+                                Begin = monthList2.First().Begin,
+                                End = monthList2.Last().End,
+                                Min = monthList2.Min(x => x.Min),
+                                Max = monthList2.Max(x => x.Max),
+                                TradeHand = monthList2.Sum(x => x.TradeHand),
+                                TradeAmount = monthList2.Sum(x => x.TradeAmount),
+                                TurnoverRate = monthList2.Sum(x => x.TurnoverRate)
+                            };
+
+                            if (seasonList.Count == 0)
+                            {
+                                record.Change = record.End - record.Begin;
+                                record.ChangeRate = record.Change / record.Begin * 100;
+                                record.Amplitude = (record.Max - record.Min) / record.Begin * 100;
+                            }
+                            else
+                            {
+                                var last = seasonList.Last();
+                                record.Change = record.End - last.End;
+                                record.ChangeRate = record.Change / last.End * 100;
+                                record.Amplitude = (record.Max - record.Min) / last.End * 100;
+                            }
+
+                            seasonList.Add(record);
+                        }
+
+                        monthBegin = monthBegin.AddMonths(3);
+                    }
+
+
+                    start = new DateTime(start.Year, 1, 1);
+                    stop = new DateTime(stop.Year, 1, 1);
+
+                    monthBegin = start;
+
+                    while (true)
+                    {
+                        if (monthBegin > stop)
+                        {
+                            break;
+                        }
+
+                        DateTime monthEnd = monthBegin.AddYears(1);
+                        List<SeasonTradeRecord> seasonList2 = seasonList.Where(x => x.Date >= monthBegin && x.Date < monthEnd)
+                            .OrderBy(x => x.Date).ToList();
+
+                        if (seasonList2.Count != 0)
+                        {
+                            YearTradeRecord record = new YearTradeRecord()
+                            {
+                                StockID = task.StockID,
+                                Date = monthBegin,
+                                Begin = seasonList2.First().Begin,
+                                End = seasonList2.Last().End,
+                                Min = seasonList2.Min(x => x.Min),
+                                Max = seasonList2.Max(x => x.Max),
+                                TradeHand = seasonList2.Sum(x => x.TradeHand),
+                                TradeAmount = seasonList2.Sum(x => x.TradeAmount),
+                                TurnoverRate = seasonList2.Sum(x => x.TurnoverRate)
+                            };
+
+                            if (yearList.Count == 0)
+                            {
+                                record.Change = record.End - record.Begin;
+                                record.ChangeRate = record.Change / record.Begin * 100;
+                                record.Amplitude = (record.Max - record.Min) / record.Begin * 100;
+                            }
+                            else
+                            {
+                                var last = yearList.Last();
+                                record.Change = record.End - last.End;
+                                record.ChangeRate = record.Change / last.End * 100;
+                                record.Amplitude = (record.Max - record.Min) / last.End * 100;
+                            }
+
+                            yearList.Add(record);
+                        }
+
+                        monthBegin = monthBegin.AddYears(1);
+                    }
+
+                    context.MonthTradeRecord.AddRange(monthList);
+                    context.SeasonTradeRecord.AddRange(seasonList);
+                    context.YearTradeRecord.AddRange(yearList);
+                    task.State = CrawlTaskState.Done;
+                    context.Attach<CrawlTask>(task).State = EntityState.Modified;
+
+                    context.SaveChanges();
+                }
+            }
+
+            Log.Debug("完成");
         }
     }
 }

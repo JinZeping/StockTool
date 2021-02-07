@@ -43,7 +43,8 @@ namespace StockApp
 
         private void Process()
         {
-            new MainWindow().Show();
+            //new MainWindow().Show();
+            SeedData.AddMonthSeasonYearTradeRecord();
         }
     }
 }
