@@ -21,7 +21,7 @@ namespace StockApp
 #if DEBUG
             Log.Info("程序启动");
             Process();
-            Log.Info("程序退出");
+            Log.Info("程序启动完成");
 #else
             try
             {

@@ -5,6 +5,7 @@
 		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 		xmlns:local="clr-namespace:StockApp"
 		xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+		xmlns:pnl="clr-namespace:StockApp.UI.Panels"
 		mc:Ignorable="d"
 		Title="股票分析工具"
 		Height="450"
@@ -13,11 +14,12 @@
 		md:ColorZoneAssist.Mode="PrimaryMid">
 		<TabItem Style="{StaticResource MaterialDesignNavigationRailTabItem}">
 			<TabItem.Header>
-				<md:PackIcon Kind="Pageview"
+				<md:PackIcon Kind="ChartBellCurve"
 							 Width="32"
 							 Height="32"
 							 ToolTip="抓取数据" />
 			</TabItem.Header>
+			<pnl:ChangeRateSummaryPanel />
 		</TabItem>
 	</TabControl>
 </Window>

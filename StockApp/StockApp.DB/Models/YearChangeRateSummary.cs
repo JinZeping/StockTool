@@ -26,5 +26,8 @@ namespace StockApp.DB.Models
 
         [Required]
         public int Count { get; set; }
+
+        [Required, Column(TypeName = "decimal(10,4)")]
+        public decimal Percent { get; set; }
     }
 }

@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using StockApp.DB;
 
 namespace StockApp.DB.Migrations
 {
     [DbContext(typeof(StockDbContext))]
-    partial class StockDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210228103331_AlterTable_YearChangeRateSummary_AddColumn_Percent")]
+    partial class AlterTable_YearChangeRateSummary_AddColumn_Percent
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -429,7 +431,7 @@ namespace StockApp.DB.Migrations
                     b.Property<decimal>("LowLimit")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<decimal>("Percent")
+                    b.Property<decimal?>("Percent")
                         .HasColumnType("decimal(10,4)");
 
                     b.Property<decimal>("Step")

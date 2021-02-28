@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using StockApp.DB;
 
 namespace StockApp.DB.Migrations
 {
     [DbContext(typeof(StockDbContext))]
-    partial class StockDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210228114743_AddTable_YearAmplitudeSummary")]
+    partial class AddTable_YearAmplitudeSummary
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -408,6 +410,36 @@ namespace StockApp.DB.Migrations
                     b.HasIndex("ExchangeID");
 
                     b.ToTable("Stock");
+                });
+
+            modelBuilder.Entity("StockApp.DB.Models.YearAmplitudeSummary", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("Count")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("date");
+
+                    b.Property<decimal>("HighLimit")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("LowLimit")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Percent")
+                        .HasColumnType("decimal(10,4)");
+
+                    b.Property<decimal>("Step")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("YearAmplitudeSummary");
                 });
 
             modelBuilder.Entity("StockApp.DB.Models.YearChangeRateSummary", b =>

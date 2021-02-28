@@ -14,7 +14,6 @@ namespace StockApp.Data
     {
         static void Main(string[] args)
         {
-            AddYearChangeRateSummarys();
         }
 
         public static void AddExchanges()
@@ -546,7 +545,8 @@ namespace StockApp.Data
                             LowLimit = lowLimit,
                             HighLimit = highLimit,
                             Step = step,
-                            Count = count
+                            Count = count,
+                            Percent = ((decimal)count / records.Count) * 100
                         };
 
                         using (StockDbContext saveContext = new StockDbContext())
