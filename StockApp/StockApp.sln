@@ -7,9 +7,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StockApp", "StockApp\StockA
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommonLibrary", "CommonLibrary\CommonLibrary.csproj", "{7928769D-07CB-4A8F-B12C-A586D82A7882}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WPFCommonExtension", "WPFCommonExtension\WPFCommonExtension.csproj", "{72B2CAD1-52DD-4C7C-A0D7-30E876BC5E8B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WPFCommonExtension", "WPFCommonExtension\WPFCommonExtension.csproj", "{72B2CAD1-52DD-4C7C-A0D7-30E876BC5E8B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WPFExtension.MD", "WPFExtension.MD\WPFExtension.MD.csproj", "{0A9C0EF8-10CE-4E3F-BBC0-9AA9716FFDE9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WPFExtension.MD", "WPFExtension.MD\WPFExtension.MD.csproj", "{0A9C0EF8-10CE-4E3F-BBC0-9AA9716FFDE9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StockApp.DB", "StockApp.DB\StockApp.DB.csproj", "{5CDFBE38-D47C-4F35-9C36-09D739DC66B9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StockApp.Data", "StockApp.Data\StockApp.Data.csproj", "{D9F360EA-42FD-4B53-8118-23E895607C7B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,6 +55,22 @@ Global
 		{0A9C0EF8-10CE-4E3F-BBC0-9AA9716FFDE9}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0A9C0EF8-10CE-4E3F-BBC0-9AA9716FFDE9}.Release|x64.ActiveCfg = Release|x64
 		{0A9C0EF8-10CE-4E3F-BBC0-9AA9716FFDE9}.Release|x64.Build.0 = Release|x64
+		{5CDFBE38-D47C-4F35-9C36-09D739DC66B9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5CDFBE38-D47C-4F35-9C36-09D739DC66B9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5CDFBE38-D47C-4F35-9C36-09D739DC66B9}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{5CDFBE38-D47C-4F35-9C36-09D739DC66B9}.Debug|x64.Build.0 = Debug|Any CPU
+		{5CDFBE38-D47C-4F35-9C36-09D739DC66B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5CDFBE38-D47C-4F35-9C36-09D739DC66B9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5CDFBE38-D47C-4F35-9C36-09D739DC66B9}.Release|x64.ActiveCfg = Release|Any CPU
+		{5CDFBE38-D47C-4F35-9C36-09D739DC66B9}.Release|x64.Build.0 = Release|Any CPU
+		{D9F360EA-42FD-4B53-8118-23E895607C7B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D9F360EA-42FD-4B53-8118-23E895607C7B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D9F360EA-42FD-4B53-8118-23E895607C7B}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{D9F360EA-42FD-4B53-8118-23E895607C7B}.Debug|x64.Build.0 = Debug|Any CPU
+		{D9F360EA-42FD-4B53-8118-23E895607C7B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D9F360EA-42FD-4B53-8118-23E895607C7B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D9F360EA-42FD-4B53-8118-23E895607C7B}.Release|x64.ActiveCfg = Release|Any CPU
+		{D9F360EA-42FD-4B53-8118-23E895607C7B}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

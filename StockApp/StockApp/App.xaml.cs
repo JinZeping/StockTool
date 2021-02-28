@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using System.Windows;
 using StockApp.DB;
 using StockApp.UI;
-using StockApp.Crawler;
 
 namespace StockApp
 {
@@ -43,8 +42,7 @@ namespace StockApp
 
         private void Process()
         {
-            //new MainWindow().Show();
-            SeedData.AddMonthSeasonYearTradeRecord();
+            new MainWindow().Show();
         }
     }
 }
